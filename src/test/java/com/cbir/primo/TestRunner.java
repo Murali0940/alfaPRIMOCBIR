@@ -14,5 +14,6 @@ public class TestRunner {
     	testng.setTestClasses(new Class[] { CheckStatus.class });
     	testng.addListener(tla);
     	testng.run();
+    	System.out.println("Running from testng class");
     }
 }
