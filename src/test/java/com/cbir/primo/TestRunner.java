@@ -14,6 +14,6 @@ public class TestRunner {
     	testng.setTestClasses(new Class[] { CheckStatus.class });
     	testng.addListener(tla);
     	testng.run();
-    	System.out.println("running from testng class...");
+    	System.out.println("This is PRIMO_CBIR_with_Screenshot_and_Mail");
     }
 }
