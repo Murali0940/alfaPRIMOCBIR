@@ -16,12 +16,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.io.FileHandler;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
-
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class CheckStatus {
 
@@ -31,10 +30,11 @@ public class CheckStatus {
 	@Test(priority = 1)
 	public void alfaPRIMO_CBIRstatus() throws InterruptedException, IOException, EmailException {
 
-		String URL = "http://13.115.237.181/cbirstatus/";
+String URL = "http://13.115.237.181/cbirstatus/";
 
-		WebDriverManager.chromedriver().clearDriverCache().setup();
+		// WebDriverManager.chromedriver().clearDriverCache().setup();
 		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--headless"); // for headless chrome
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments("start-maximized");
 
@@ -48,16 +48,52 @@ public class CheckStatus {
 
 		WebElement primo = driver.findElement(By.xpath("//span[text()='alfaPRIMO']"));
 		primo.click();
-		Thread.sleep(15000);
+		// Thread.sleep(15000);
+
+		By loaderLocator = By.id("loadingSpinner");
+
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(loaderLocator));
+
+		System.out.println("Loader is gone, proceed further.");
+
+		// Define the locator for the element
+		By elementLocator = By.xpath("//i[@class='pi pi-spin pi-spinner']");
+
+		// Create WebDriverWait instance
+		WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+		// Wait until the element is gone
+		boolean isElementGone = wait1.until(ExpectedConditions.invisibilityOfElementLocated(elementLocator));
+
+		if (isElementGone) {
+			System.out.println("Element is no longer visible.");
+		} else {
+			System.out.println("Element is still visible.");
+		}
 
 		// Get the current timestamp
 		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
-		// Take a screenshot of the entire page
-		File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		// Define the directory path for the screenshot
+		String directoryPath = "F:\\CBIRScreenshot";
+		File directory = new File(directoryPath);
+
+		// Check if the directory exists, and create it if it doesn't
+		if (!directory.exists()) {
+			if (directory.mkdirs()) {
+				System.out.println("Directory created at: " + directoryPath);
+			} else {
+				System.out.println("Failed to create directory at: " + directoryPath);
+				return;
+			}
+		}
 
 		// Define the destination path for the screenshot
 		File destination = new File("F:\\CBIRScreenshot\\screenshot_" + timestamp + ".png");
+
+		// Take a screenshot of the entire page
+		File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 
 		System.out.println("Destination path taken");
 
@@ -69,7 +105,6 @@ public class CheckStatus {
 			System.out.println(destination.getAbsoluteFile());
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println("Failed to save screenshot: " + e.getMessage());
 		}
 
